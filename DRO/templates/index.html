@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Route Optimizer</title>
+    <style>
+        /* General Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a73e8, #4285f4);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            color: #fff;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        label {
+            font-size: 1.1rem;
+            margin-bottom: 0.2rem;
+        }
+
+        input, select {
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        button {
+            padding: 1rem;
+            background: #34a853;
+            color: #fff;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background: #2b8a45;
+            transform: scale(1.05);
+        }
+
+        button:active {
+            background: #23773b;
+            transform: scale(0.95);
+        }
+
+        #results, #mapDisplay {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            display: none;
+        }
+
+        h2 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            color: #fff;
+        }
+
+        p {
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        @keyframes fadeIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dynamic Route Optimizer</h1>
+        <form id="routeForm">
+            <label for="start">Start Location:</label>
+            <input type="text" id="start" name="start" placeholder="Enter start location" required>
+
+            <label for="end">End Location:</label>
+            <input type="text" id="end" name="end" placeholder="Enter end location" required>
+
+            <label for="vehicleType">Vehicle Type:</label>
+            <select id="vehicleType" name="vehicleType">
+                <option value="car">Car</option>
+                <option value="motorcycle">Motorcycle</option>
+                <option value="bus">Bus</option>
+                <option value="truck">Truck</option>
+            </select>
+
+            <button type="submit">Optimize Route</button>
+        </form>
+
+        <div id="results">
+            <h2>Route Details</h2>
+            <p><strong>Distance:</strong> <span id="distance"></span> km</p>
+            <p><strong>Traffic Density:</strong> <span id="trafficDensity"></span></p>
+            <p><strong>Weather Status:</strong> <span id="weatherStatus"></span></p>
+            <p><strong>Estimated Emissions:</strong> <span id="emissions"></span> kg CO2</p>
+        </div>
+
+        <div id="mapDisplay">
+            <h2>Map Display</h2>
+            <img id="routeMap" alt="Optimized Route Map" style="width: 100%; border-radius: 8px;" />
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('routeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const start = document.getElementById('start').value;
+            const end = document.getElementById('end').value;
+            const vehicleType = document.getElementById('vehicleType').value;
+
+            try {
+                const response = await fetch('/optimize', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ start, end, vehicle_type: vehicleType })
+                });
+
+                if (!response.ok) throw new Error('Failed to optimize route.');
+
+                const data = await response.json();
+                document.getElementById('distance').textContent = data.distance_km;
+                document.getElementById('trafficDensity').textContent = data.traffic_density;
+                document.getElementById('weatherStatus').textContent = data.weather_status;
+                document.getElementById('emissions').textContent = data.emissions_kg;
+                document.getElementById('results').style.display = 'block';
+
+                const mapResponse = await fetch('/get_map', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ start_coords: data.start_coords, end_coords: data.end_coords })
+                });
+
+                if (!mapResponse.ok) throw new Error('Failed to fetch map.');
+
+                const mapData = await mapResponse.json();
+                document.getElementById('routeMap').src = mapData.map_url;
+                document.getElementById('mapDisplay').style.display = 'block';
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    </script>
+</body>
+</html>
