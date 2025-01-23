@@ -1,202 +1,329 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dynamic Route Optimizer</title>
+    <link rel="stylesheet" type="text/css" href="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps.css"/>
+    <script src="https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/maps-web.min.js"></script>
     <style>
-        /* General Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: system-ui, -apple-system, sans-serif;
+      }
 
-        body {
-            font-family: 'Roboto', Arial, sans-serif;
-            background: linear-gradient(135deg, #1a73e8, #4285f4);
-            color: #fff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
-        }
+      body {
+        background: #0A0A1B;
+        color: white;
+        min-height: 100vh;
+        overflow: hidden;
+      }
 
-        .container {
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 500px;
-            animation: fadeIn 1s ease-in-out;
-        }
+      .header {
+        background: #0A0A1B;
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+      }
 
-        h1 {
-            text-align: center;
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 1.5rem;
-            color: #fff;
-            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.6);
-        }
+      .header-content {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+      }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
+      .header-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+      }
 
-        label {
-            font-size: 1.1rem;
-            margin-bottom: 0.2rem;
-        }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+      }
 
-        input, select {
-            padding: 0.8rem;
-            border-radius: 8px;
-            border: none;
-            outline: none;
-            font-size: 1rem;
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
 
-        input:focus, select:focus {
-            transform: scale(1.05);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-        }
+      input, select {
+        width: 100%;
+        padding: 0.5rem;
+        background: #1c1c2e;
+        border: 1px solid rgba(128, 128, 128, 0.3);
+        color: white;
+        border-radius: 0.375rem;
+      }
 
-        button {
-            padding: 1rem;
-            background: #34a853;
-            color: #fff;
-            font-size: 1.2rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
+      button {
+        width: 100%;
+        padding: 0.5rem;
+        background: #00B37E;
+        color: white;
+        border: none;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
 
-        button:hover {
-            background: #2b8a45;
-            transform: scale(1.05);
-        }
+      button:hover {
+        background: #00A070;
+      }
 
-        button:active {
-            background: #23773b;
-            transform: scale(0.95);
-        }
+      .main-content {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        height: calc(100vh - 220px);
+      }
 
-        #results, #mapDisplay {
-            margin-top: 2rem;
-            padding: 1rem;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-            display: none;
-        }
+      .map-section, .details-section {
+        background: #1c1c2e;
+        border-radius: 0.5rem;
+        padding: 1rem;
+      }
 
-        h2 {
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-            color: #fff;
-        }
+      .section-title {
+        font-size: 1.25rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+      }
 
-        p {
-            margin-bottom: 0.5rem;
-            font-size: 1rem;
-        }
+      #map {
+        height: calc(100% - 2.5rem);
+        width: 100%;
+        border-radius: 0.5rem;
+      }
 
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.95);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-        }
+      .details-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .route-details, .navigation-instructions {
+        background: #1c1c2e;
+        border-radius: 0.5rem;
+        padding: 1rem;
+      }
+
+      .detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+      }
+
+      .detail-label {
+        color: #888;
+      }
+
+      #instructions {
+        list-style: none;
+        max-height: 200px;
+        overflow-y: auto;
+        padding-right: 0.5rem;
+      }
+
+      #instructions li {
+        padding: 0.5rem 0;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+      }
+
+      #instructions::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      #instructions::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+      }
+
+      #instructions::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 4px;
+      }
+
+      #instructions::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.3);
+      }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Dynamic Route Optimizer</h1>
-        <form id="routeForm">
-            <label for="start">Start Location:</label>
-            <input type="text" id="start" name="start" placeholder="Enter start location" required>
-
-            <label for="end">End Location:</label>
-            <input type="text" id="end" name="end" placeholder="Enter end location" required>
-
-            <label for="vehicleType">Vehicle Type:</label>
-            <select id="vehicleType" name="vehicleType">
-                <option value="car">Car</option>
-                <option value="motorcycle">Motorcycle</option>
-                <option value="bus">Bus</option>
-                <option value="truck">Truck</option>
-            </select>
-
-            <button type="submit">Optimize Route</button>
-        </form>
-
-        <div id="results">
-            <h2>Route Details</h2>
-            <p><strong>Distance:</strong> <span id="distance"></span> km</p>
-            <p><strong>Traffic Density:</strong> <span id="trafficDensity"></span></p>
-            <p><strong>Weather Status:</strong> <span id="weatherStatus"></span></p>
-            <p><strong>Estimated Emissions:</strong> <span id="emissions"></span> kg CO2</p>
+  </head>
+  <body>
+    <header class="header">
+      <div class="header-content">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4285f4" stroke-width="2">
+          <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        <h1 class="header-title">DYNAMIC ROUTE OPTIMIZER</h1>
+      </div>
+      
+      <form id="routeForm" class="form-grid">
+        <div class="input-group">
+          <label for="start">Starting Point:</label>
+          <input type="text" id="start" name="start" placeholder="Enter start location" required>
         </div>
-
-        <div id="mapDisplay">
-            <h2>Map Display</h2>
-            <img id="routeMap" alt="Optimized Route Map" style="width: 100%; border-radius: 8px;" />
+        
+        <div class="input-group">
+          <label for="end">Ending Point:</label>
+          <input type="text" id="end" name="end" placeholder="Enter end location" required>
         </div>
-    </div>
+        
+        <div class="input-group">
+          <label for="vehicleType">Vehicle Type:</label>
+          <select id="vehicleType" name="vehicleType">
+            <option value="car">Car</option>
+            <option value="motorcycle">Motorcycle</option>
+            <option value="bus">Bus</option>
+            <option value="truck">Truck</option>
+          </select>
+        </div>
+        
+        <div class="input-group">
+          <label>&nbsp;</label>
+          <button type="submit">OPTIMIZE ROUTE</button>
+        </div>
+      </form>
+    </header>
+
+    <main class="main-content">
+      <section class="map-section">
+        <h2 class="section-title">ROUTE MAP</h2>
+        <div id="map"></div>
+      </section>
+
+      <section class="details-section">
+        <div class="details-grid">
+          <div class="route-details">
+            <h2 class="section-title">ROUTE DETAILS</h2>
+            <div class="detail-item">
+              <span class="detail-label">Distance:</span>
+              <span id="distance">--</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Estimated Travel Time:</span>
+              <span id="travelTime">--</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Traffic Density:</span>
+              <span id="trafficDensity">--</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Weather Status:</span>
+              <span id="weatherStatus">--</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Estimated Emissions:</span>
+              <span id="emissions">--</span>
+            </div>
+          </div>
+
+          <div class="navigation-instructions">
+            <h2 class="section-title">NAVIGATION INSTRUCTIONS</h2>
+            <ul id="instructions"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
 
     <script>
-        document.getElementById('routeForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
+      let map;
+      let routeLayer;
 
-            const start = document.getElementById('start').value;
-            const end = document.getElementById('end').value;
-            const vehicleType = document.getElementById('vehicleType').value;
-
-            try {
-                const response = await fetch('/optimize', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ start, end, vehicle_type: vehicleType })
-                });
-
-                if (!response.ok) throw new Error('Failed to optimize route.');
-
-                const data = await response.json();
-                document.getElementById('distance').textContent = data.distance_km;
-                document.getElementById('trafficDensity').textContent = data.traffic_density;
-                document.getElementById('weatherStatus').textContent = data.weather_status;
-                document.getElementById('emissions').textContent = data.emissions_kg;
-                document.getElementById('results').style.display = 'block';
-
-                const mapResponse = await fetch('/get_map', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ start_coords: data.start_coords, end_coords: data.end_coords })
-                });
-
-                if (!mapResponse.ok) throw new Error('Failed to fetch map.');
-
-                const mapData = await mapResponse.json();
-                document.getElementById('routeMap').src = mapData.map_url;
-                document.getElementById('mapDisplay').style.display = 'block';
-            } catch (error) {
-                alert(error.message);
-            }
+      function initializeMap() {
+        map = tt.map({
+          key: "Y4d95dZrj0C8SsOqAXq6fUGqITwfFipU",
+          container: "map",
+          center: [0, 0],
+          zoom: 1,
+          style: 'https://api.tomtom.com/maps-sdk-for-web/cdn/6.x/6.23.0/maps/basic_night.json'
         });
+      }
+
+      function drawRoute(routePoints, start, end) {
+        if (routeLayer) {
+          map.removeLayer(routeLayer.id);
+          map.removeSource(routeLayer.id);
+        }
+
+        const coordinates = routePoints.map(point => [point.longitude, point.latitude]);
+
+        map.addLayer({
+          id: 'route',
+          type: 'line',
+          source: {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              properties: {},
+              geometry: {
+                type: 'LineString',
+                coordinates: coordinates
+              }
+            }
+          },
+          paint: {
+            'line-color': '#00B37E',
+            'line-width': 6
+          }
+        });
+
+        new tt.Marker().setLngLat([start[1], start[0]]).addTo(map);
+        new tt.Marker().setLngLat([end[1], end[0]]).addTo(map);
+
+        const bounds = coordinates.reduce((bounds, coord) => {
+          return bounds.extend(coord);
+        }, new tt.LngLatBounds(coordinates[0], coordinates[0]));
+
+        map.fitBounds(bounds, { padding: 50 });
+      }
+
+      document.addEventListener('DOMContentLoaded', initializeMap);
+
+      document.getElementById('routeForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const start = document.getElementById('start').value;
+        const end = document.getElementById('end').value;
+        const vehicleType = document.getElementById('vehicleType').value;
+
+        try {
+          const response = await fetch('/optimize', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ start, end, vehicle_type: vehicleType })
+          });
+
+          if (!response.ok) throw new Error('Failed to optimize route.');
+
+          const data = await response.json();
+          
+          document.getElementById('distance').textContent = data.distance_km + ' km';
+          document.getElementById('travelTime').textContent = data.travel_time_minutes + ' minutes';
+          document.getElementById('trafficDensity').textContent = data.traffic_density;
+          document.getElementById('weatherStatus').textContent = data.weather_status;
+          document.getElementById('emissions').textContent = data.emissions_kg + ' kg CO2';
+
+          drawRoute(data.route_points, data.start_coords, data.end_coords);
+
+          const instructionsList = document.getElementById('instructions');
+          instructionsList.innerHTML = '';
+          data.navigation_instructions.forEach(instruction => {
+            const li = document.createElement('li');
+            li.textContent = instruction;
+            instructionsList.appendChild(li);
+          });
+        } catch (error) {
+          alert(error.message);
+        }
+      });
     </script>
-</body>
+  </body>
 </html>
