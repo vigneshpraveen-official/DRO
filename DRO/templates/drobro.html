@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRO Bro - Chat Assistant</title>
+    <style>
+        /* Reset page styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
+        body{
+          overflow: hidden;
+          overflow-y: scroll;
+        }
+
+        /* Fullscreen container */
+        .chatbot-container {
+            width: 100vw;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            background-color: #f4f4f4;
+        }
+
+        /* Header styling */
+        .chat-header {
+            width: 100%;
+            padding: 15px;
+            background-color: #0a0a1b;
+            color: white;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        /* Fullscreen iframe */
+        .chatbot-frame {
+            width: 100%;
+            height: 100dvh; /* 50px reserved for header */
+            border: none;
+        }
+
+      .header-content{
+        height: 80px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 20px;
+        gap: 10px;
+        background-color: #0a0a1b;
+      }
+
+      .nav{
+        display: flex;
+        flex-direction: row;
+        gap: 1.5rem;
+        margin-left: auto;
+      }
+
+      .nav-items{
+        color: white;
+        text-decoration: none;
+      }
+
+      .header-title {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: white;
+      }
+    </style>
+</head>
+<body>
+    <div class="header-content">
+        <!-- <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#4285f4" stroke-width="2">
+          <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg> -->
+        <h1 class="header-title">DYNAMIC ROUTE OPTIMIZER</h1>
+        <div class="nav">
+          <div><a class="nav-items" href=""><p class="nav-items">Home</p></a></div>
+          <div><a class="nav-items" href=""><p class="nav-items">ChatBot</p></a></div>
+          <div><a class="nav-items" href=""><p class="nav-items">Rewards</p></a></div>
+          <div><a class="nav-items" href=""><p class="nav-items">About</p></a></div>     
+        </div>
+      </div>
+
+    <div class="chatbot-container">
+        <div class="chat-header">DRO Bro - Chat Assistant</div>
+        <iframe 
+            class="chatbot-frame" 
+            src="https://cdn.botpress.cloud/webchat/v2.2/shareable.html?configUrl=https://files.bpcontent.cloud/2025/01/24/07/20250124070444-UD5J59JE.json">
+        </iframe>
+    </div>
+
+</body>
+</html>
