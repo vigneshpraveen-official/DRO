@@ -1,12 +1,30 @@
 import requests
 from flask import Flask, request, jsonify, render_template
 import json
+import openai  # Ensure you have `openai` installed
 
 # Configuration
-TOMTOM_API_KEY = "---------------------"
-OPENWEATHER_API_KEY = "---------------------"
+TOMTOM_API_KEY = "Y4d95dZrj0C8SsOqAXq6fUGqITwfFipU"
+OPENWEATHER_API_KEY = "ea96c69aff8dab6f6b1be765c0ef4b8a"
+OPENAI_API_KEY = "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"
+openai.api_key = OPENAI_API_KEY
 
 app = Flask(__name__)
+
+
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/home')
+def home():
+    return render_template('home.html')
+
+@app.route('/drobro')
+def drobro():
+    return render_template('drobro.html')
+
 
 def get_coordinates(place_name):
     """Get coordinates using TomTom Geocoding API"""
