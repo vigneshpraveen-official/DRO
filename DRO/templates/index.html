@@ -17,8 +17,9 @@
       body {
         background: #0A0A1B;
         color: white;
-        min-height: 100vh;
+        min-height: 100dvh;
         overflow: hidden;
+        overflow-y: scroll;
       }
 
       .header {
@@ -86,7 +87,7 @@
       .map-section, .details-section {
         background: #1c1c2e00;
         border-radius: 0.5rem;
-        padding: 1rem;
+        padding: 0px;
       }
 
       .section-title {
@@ -96,7 +97,7 @@
       }
 
       #map {
-        height: calc(100% - 2.5rem);
+        height: 90%;
         width: 100%;
         border-radius: 0.5rem;
       }
@@ -107,10 +108,18 @@
         gap: 1.5rem;
       }
 
-      .route-details, .navigation-instructions {
+      .route-details, .navigation-instructions, .map-section, .chatbot-container{
         background: #1c1c2e;
         border-radius: 0.5rem;
         padding: 1rem;
+      }
+
+      .navigation-instructions{
+        margin: 0px 20px 20px 20px;
+      }
+      
+      .route-details, .details-section, .details-grid{
+        height: 100%;
       }
 
       .detail-item {
@@ -126,7 +135,7 @@
 
       #instructions {
         list-style: none;
-        max-height: 200px;
+        max-height: 250px;
         overflow-y: auto;
         padding-right: 0.5rem;
       }
@@ -153,6 +162,47 @@
       #instructions::-webkit-scrollbar-thumb:hover {
         background: rgba(255, 255, 255, 0.3);
       }
+
+      .nav{
+        height: 100%;
+        color: white;
+        display: flex;
+        flex-direction: row;
+        gap: 1.5rem;
+        align-items: center;
+        margin-left: auto;
+      }
+
+      .nav-items{
+        color: white;
+        text-decoration: none;
+      }
+
+      .nav-items:hover{
+        color: aqua;
+      }
+
+      .form-grid-2{
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 1.5rem;
+      }
+
+      .vehicle-selector{
+        margin-top: 10px;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-self: center;
+        justify-content: center;
+      }
+
+      .chatbot-container{
+        margin: 10px;
+      }
+
+
     </style>
   </head>
   <body>
@@ -163,33 +213,48 @@
           <circle cx="12" cy="10" r="3"/>
         </svg>
         <h1 class="header-title">DYNAMIC ROUTE OPTIMIZER</h1>
+        <div class="nav">
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('home') }}">FeedWard</a>
+            <a href="{{ url_for('drobro') }}">Chatbot</a>
+            <a href="{{ url_for('about') }}">About</a>     
+        </div>
       </div>
       
-      <form id="routeForm" class="form-grid">
-        <div class="input-group">
-          <label for="start">Starting Point:</label>
-          <input type="text" id="start" name="start" placeholder="Enter start location" required>
+      <form id="routeForm">
+        <div class="form-grid">
+          <div class="input-group">
+            <label for="start">Starting Point:</label>
+            <input type="text" id="start" name="start" placeholder="Enter start location" required>
+          </div>
+          
+          <div class="input-group">
+            <label for="end">Ending Point:</label>
+            <input type="text" id="end" name="end" placeholder="Enter end location" required>
+          </div>
         </div>
-        
-        <div class="input-group">
-          <label for="end">Ending Point:</label>
-          <input type="text" id="end" name="end" placeholder="Enter end location" required>
-        </div>
-        
-        <div class="input-group">
-          <label for="vehicleType">Vehicle Type:</label>
-          <select id="vehicleType" name="vehicleType">
-            <option value="car">Car</option>
-            <option value="motorcycle">Motorcycle</option>
-            <option value="bus">Bus</option>
-            <option value="truck">Truck</option>
-          </select>
-        </div>
-        
-        <div class="input-group">
-          <label>&nbsp;</label>
-          <button type="submit">OPTIMIZE ROUTE</button>
-        </div>
+
+
+        <div class="form-grid-2">
+          <div></div>
+          <div class="vehicle-selector">
+            <div class="input-group">
+              <label for="vehicleType">Vehicle Type:</label>
+              <select id="vehicleType" name="vehicleType">
+                <option value="car">Car</option>
+                <option value="motorcycle">Motorcycle</option>
+                <option value="bus">Bus</option>
+                <option value="truck">Truck</option>
+              </select>
+            </div>
+          
+          
+            <div class="input-group">
+              <label>&nbsp;</label>
+              <button type="submit">OPTIMIZE ROUTE</button>
+            </div>
+          </div>
+      </div>
       </form>
     </header>
 
@@ -225,13 +290,18 @@
             </div>
           </div>
 
-          <div class="navigation-instructions">
-            <h2 class="section-title">NAVIGATION INSTRUCTIONS</h2>
-            <ul id="instructions"></ul>
-          </div>
+          
         </div>
+
+        
+
       </section>
     </main>
+
+    <div class="navigation-instructions">
+      <h2 class="section-title">NAVIGATION INSTRUCTIONS</h2>
+      <ul id="instructions"></ul>
+    </div>    
 
     <script>
       let map;
@@ -242,7 +312,7 @@
           key: "Y4d95dZrj0C8SsOqAXq6fUGqITwfFipU",
           container: "map",
           center: [0, 0],
-          zoom: 1,
+          zoom: 1
         });
       }
 
@@ -323,6 +393,41 @@
           alert(error.message);
         }
       });
+
+      //chat bot
+      document.addEventListener('DOMContentLoaded', initializeMap);
+
+        // Chatbot Script
+        document.getElementById('sendButton').addEventListener('click', async () => {
+            const chatInput = document.getElementById('chatInput');
+            const chatHistory = document.getElementById('chatHistory');
+            const userMessage = chatInput.value.trim();
+
+            if (!userMessage) return;
+
+            // Add user message to chat history
+            const userBubble = `<div style="text-align: right; margin: 5px;"><strong>You:</strong> ${userMessage}</div>`;
+            chatHistory.innerHTML += userBubble;
+            chatInput.value = '';
+
+            try {
+                const response = await fetch('/chatbot', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: userMessage }),
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch response from chatbot.');
+
+                const data = await response.json();
+                const botMessage = `<div style="text-align: left; margin: 5px;"><strong>DRO Bro:</strong> ${data.response}</div>`;
+                chatHistory.innerHTML += botMessage;
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            } catch (error) {
+                chatHistory.innerHTML += `<div style="text-align: left; margin: 5px; color: red;"><strong>Error:</strong> ${error.message}</div>`;
+            }
+        });
+
     </script>
   </body>
 </html>
