@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Send Reward</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background-color: #181A20;
+            color: #EAECEF;
+            padding: 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            background-color: #1E2026;
+            padding: 32px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #F0B90B;
+            margin-bottom: 24px;
+            font-size: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #848E9C;
+            font-size: 14px;
+        }
+
+        #walletAddress {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #474D57;
+            border-radius: 4px;
+            background-color: #2B3139;
+            color: #EAECEF;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        #walletAddress:focus {
+            outline: none;
+            border-color: #F0B90B;
+            box-shadow: 0 0 0 2px rgba(240, 185, 11, 0.2);
+        }
+
+        #walletAddress::placeholder {
+            color: #5E6673;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #F0B90B;
+            color: #1E2026;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #F8D12F;
+        }
+
+        .wallet-info {
+            background-color: #2B3139;
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #474D57;
+        }
+
+        .wallet-info p {
+            color: #848E9C;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .wallet-info .balance {
+            color: #F0B90B;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .transaction-status {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .success {
+            background-color: rgba(14, 203, 129, 0.1);
+            color: #0ECB81;
+            border: 1px solid #0ECB81;
+        }
+
+        .error {
+            background-color: rgba(246, 70, 93, 0.1);
+            color: #F6465D;
+            border: 1px solid #F6465D;
+        }
+
+        .network-badge {
+            background-color: #2B3139;
+            border: 1px solid #474D57;
+            border-radius: 4px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .network-badge span {
+            color: #0ECB81;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .metamask-info {
+            background-color: #2B3139;
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #474D57;
+        }
+
+        .metamask-info .network {
+            color: #848E9C;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .metamask-info .status {
+            color: #0ECB81;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .amount-info {
+            background-color: #2B3139;
+            padding: 16px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border: 1px solid #474D57;
+        }
+
+        .amount-info p {
+            color: #848E9C;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .amount-info .eth-amount {
+            color: #F0B90B;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .gas-info {
+            background-color: rgba(240, 185, 11, 0.1);
+            border: 1px solid #F0B90B;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #F0B90B;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 20px;
+        }
+
+        .modal-content {
+            background-color: #1E2026;
+            padding: 24px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            border: 1px solid #474D57;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-title {
+            color: #F0B90B;
+            margin-bottom: 16px;
+            font-size: 18px;
+        }
+
+        .modal-message {
+            color: #EAECEF;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .modal-button {
+            background-color: #F0B90B;
+            color: #1E2026;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .modal-button:hover {
+            background-color: #F8D12F;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="network-badge">
+            <span>Ethereum MainNet</span>
+        </div>
+
+        <h1>Send ETH Reward</h1>
+        
+        <div class="metamask-info">
+            <div class="network">Network Status</div>
+            <div class="status">Connected to Ethereum MainNet</div>
+        </div>
+
+        <div class="amount-info">
+            <p>Fixed Transaction Amount</p>
+            <div class="eth-amount">0.1 ETH</div>
+        </div>
+
+        <div class="gas-info">
+            💡 Transaction requires ETH for gas fees
+        </div>
+
+        <form id="walletForm">
+            <div class="form-group">
+                <label for="walletAddress">Recipient ETH Address</label>
+                <input type="text" id="walletAddress" placeholder="Enter ETH address (0x...)" required>
+            </div>
+            <button type="submit">Confirm Transaction</button>
+        </form>
+
+        <div class="transaction-status success" style="display: none;">
+            Transaction successful!
+        </div>
+    </div>
+
+    <!-- Add Modal HTML -->
+    <div id="customAlert" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h3 class="modal-title">Notice</h3>
+            <p class="modal-message" id="modalMessage"></p>
+            <button class="modal-button" onclick="closeModal()">OK</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/web3@latest/dist/web3.min.js"></script>
+    <script src="app.js"></script>
+    <script>
+        function loadWalletAddress() {
+            let storedData = localStorage.getItem("userData");
+
+            if (storedData) {
+                let userData = JSON.parse(storedData);
+                document.getElementById("walletAddress").value = userData.address || "";
+            }
+        }
+
+        function updateWalletAddress(event) {
+            event.preventDefault(); 
+
+            let newAddress = document.getElementById("walletAddress").value;
+            let storedData = localStorage.getItem("userData");
+
+            if (storedData) {
+                let userData = JSON.parse(storedData);
+                userData.address = newAddress;
+                localStorage.setItem("userData", JSON.stringify(userData));
+            }
+
+            showModal("Address updated successfully!");
+        }
+
+        function showModal(message) {
+            document.getElementById('modalMessage').textContent = message;
+            document.getElementById('customAlert').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('customAlert').style.display = 'none';
+        }
+
+        document.addEventListener("DOMContentLoaded", loadWalletAddress);
+        document.getElementById("walletForm").addEventListener("submit", updateWalletAddress);
+    </script>
+</body>
+
+</html>
